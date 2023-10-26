@@ -1,9 +1,11 @@
 package org.example.db;
 
 import org.example.cli.DeliveryEmployee;
+import org.example.cli.UpdateDeliveryEmployeeRequest;
 import org.example.cli.DeliveryEmployeeRequest;
 import org.example.client.FailedToCreateException;
 import org.example.client.FailedToGetException;
+import org.example.client.FailedToUpdateDeliveryEmployee;
 
 import javax.swing.plaf.nimbus.State;
 import java.sql.*;
@@ -122,7 +124,11 @@ public class DeliveryEmployeeDAO {
             Connection c = databaseConnector.getConnection();
 
             // string sql statement
-            String sqlString = "SELECT employee_id, first_name, last_name, salary, bank_account_number, national_insurance_number FROM employee WHERE employee_id = ?";
+            String sqlString = "SELECT delivery_employee.employee_id, first_name, last_name, salary, bank_account_number, national_insurance_number \n" +
+                    "FROM delivery_employee\n" +
+                    "LEFT JOIN employee \n" +
+                    "ON delivery_employee.employee_id = employee.employee_id\n" +
+                    "WHERE delivery_employee.employee_id = ?;";
 
             // prepare sql statement
             PreparedStatement statementEmployee = c.prepareStatement(sqlString);
@@ -152,4 +158,55 @@ public class DeliveryEmployeeDAO {
         }
 
     }
-}
+
+    /**
+     * updates delivery employee in employee table (service class checks employee with given id is delivery employee)
+     * @param id - employee id
+     * @param deliveryEmployeeUpdate contains attributes user can update
+     * @throws FailedToUpdateDeliveryEmployee if sql error thrown
+     */
+    public void updateDeliveryEmployee(int id, UpdateDeliveryEmployeeRequest deliveryEmployeeUpdate) throws FailedToUpdateDeliveryEmployee {
+
+        try(Connection c = databaseConnector.getConnection()){
+
+            // sql string
+            String sqlString = "UPDATE employee SET\n" +
+                    "first_name = ?, last_name = ?, salary = ?, bank_account_number = ? \n" +
+                    "WHERE employee_id = ?;";
+
+            // prepare sql statement
+            PreparedStatement preparedStatement = c.prepareStatement(sqlString);
+
+            // set placeholders
+            preparedStatement.setString(1, deliveryEmployeeUpdate.getFirstName());
+            preparedStatement.setString(2, deliveryEmployeeUpdate.getLastName());
+            preparedStatement.setDouble(3, deliveryEmployeeUpdate.getSalary());
+            preparedStatement.setString(4, deliveryEmployeeUpdate.getBankAccountNumber());
+            preparedStatement.setInt(5, id);
+
+            // execute update
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new FailedToUpdateDeliveryEmployee();
+        }
+    }
+
+    public void deleteDeliveryEmployee(int id) throws SQLException {
+        Connection c = databaseConnector.getConnection();
+
+        String updateStatement = "DELETE employee, delivery_employee FROM delivery_employee " +
+                "LEFT JOIN employee ON " +
+                "employee.employee_id = delivery_employee.employee_id " +
+                "WHERE employee.employee_id = ?;";
+
+        PreparedStatement st = c.prepareStatement(updateStatement);
+
+        st.setInt(1, id);
+
+        st.executeUpdate();
+    }
+
+
+    }
+
