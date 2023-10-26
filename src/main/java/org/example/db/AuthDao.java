@@ -16,9 +16,13 @@ public class AuthDao {
 
         try(Connection c = databaseConnector.getConnection()){
 
-            Statement st = c.createStatement();
+            String insertStatement = "SELECT Username, Password FROM `User` WHERE Username = ?";
 
-            ResultSet rs = st.executeQuery("SELECT Username, Password FROM `User` WHERE Username = " + login.getUsername());
+            PreparedStatement st = c.prepareStatement(insertStatement);
+
+            st.setString(1, login.getUsername());
+
+            ResultSet rs = st.executeQuery();
 
             while (rs.next()) {
                 return rs.getString("password").equals(login.getPassword());
