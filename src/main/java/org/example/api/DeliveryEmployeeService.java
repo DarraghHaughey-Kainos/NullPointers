@@ -14,6 +14,8 @@ import org.example.core.EmployeeValidator;
 import org.example.core.EmployeeRequestValidator;
 import org.example.db.DeliveryEmployeeDAO;
 
+import java.sql.SQLException;
+
 public class DeliveryEmployeeService {
     private DeliveryEmployeeDAO dao;
     private EmployeeValidator employeeValidator = new EmployeeValidator();
@@ -23,19 +25,20 @@ public class DeliveryEmployeeService {
     UpdateDeliveryEmployeeValidator updateDeliveryEmployeeValidator = new UpdateDeliveryEmployeeValidator();
 
 
-    public DeliveryEmployeeService(DeliveryEmployeeDAO dao){
+    public DeliveryEmployeeService(DeliveryEmployeeDAO dao) {
         this.dao = dao;
     }
 
     /**
      * Attempts to create a delivery employee using the service data access object
+     *
      * @param deliveryEmployeeRequest
      * @return the created delivery employee id
      * @throws FailedToCreateException
      */
     public int createDeliveryEmployee(DeliveryEmployeeRequest deliveryEmployeeRequest) throws FailedToCreateException, ValidationFailedException {
         String error = employeeRequestValidator.isValidEmployee(deliveryEmployeeRequest);
-        if(error != null){
+        if (error != null) {
             throw new ValidationFailedException(error);
         }
         return dao.createDeliveryEmployee(deliveryEmployeeRequest);
@@ -43,10 +46,11 @@ public class DeliveryEmployeeService {
 
     /**
      * returns specific delivery employee based on employee id
+     *
      * @param id employee id
      * @return delivery employee
      * @throws DoesNotExistException if no employee returned from database
-     * @throws FailedToGetException if sql statement failed
+     * @throws FailedToGetException  if sql statement failed
      */
     public DeliveryEmployee getDeliveryEmployeeById(int id) throws FailedToGetException, DeliveryEmployeeDoesNotExistException {
 
@@ -54,7 +58,7 @@ public class DeliveryEmployeeService {
         DeliveryEmployee deliveryEmployee = dao.getDeliveryEmployeeById(id);
 
         // if a delivery employee not returned, throw delivery employee does not exist exception
-        if(deliveryEmployee == null){
+        if (deliveryEmployee == null) {
             throw new DeliveryEmployeeDoesNotExistException();
         }
 
@@ -64,12 +68,13 @@ public class DeliveryEmployeeService {
     /**
      * calls on dao to update delivery employee. first checks that all entered data is valid by calling the validator,
      * then calls to the dao to check a delivery employee with that id exists
-     * @param id employee id
+     *
+     * @param id                     employee id
      * @param deliveryEmployeeUpdate data used to update delivery employee
-     * @throws FailedToUpdateDeliveryEmployee if sql error
-     * @throws FailedToGetException if sql error
+     * @throws FailedToUpdateDeliveryEmployee        if sql error
+     * @throws FailedToGetException                  if sql error
      * @throws DeliveryEmployeeDoesNotExistException if delivery employee with given id doesn't exist
-     * @throws InvalidUpdateRequestException if validation checks fail
+     * @throws InvalidUpdateRequestException         if validation checks fail
      */
     public void updateDeliveryEmployee(int id, UpdateDeliveryEmployeeRequest deliveryEmployeeUpdate) throws FailedToUpdateDeliveryEmployee, FailedToGetException, DeliveryEmployeeDoesNotExistException, InvalidUpdateRequestException {
 
@@ -77,16 +82,31 @@ public class DeliveryEmployeeService {
         String validateDeliveryEmployee = updateDeliveryEmployeeValidator.isValidEmployeeUpdate(deliveryEmployeeUpdate);
 
         // if employee exists, check data is valid using employee validator
-        if(validateDeliveryEmployee != null){
+        if (validateDeliveryEmployee != null) {
             throw new InvalidUpdateRequestException(validateDeliveryEmployee);
         }
 
         // call to dao to check employee with given id is a delivery employee
-        if(dao.getDeliveryEmployeeById(id) == null){
+        if (dao.getDeliveryEmployeeById(id) == null) {
             throw new DeliveryEmployeeDoesNotExistException();
         }
 
         // call on dao to update delivery employee
         dao.updateDeliveryEmployee(id, deliveryEmployeeUpdate);
+    }
+
+    public void deleteDeliveryEmployee(int id) throws DeliveryEmployeeDoesNotExistException, FailedToGetException {
+        try {
+            DeliveryEmployee employeeToDelete = dao.getDeliveryEmployeeById(id);
+
+            if (employeeToDelete == null) {
+                throw new DeliveryEmployeeDoesNotExistException();
+            }
+
+            dao.deleteDeliveryEmployee(id);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

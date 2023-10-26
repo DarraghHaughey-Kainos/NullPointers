@@ -192,6 +192,21 @@ public class DeliveryEmployeeDAO {
         }
     }
 
+    public void deleteDeliveryEmployee(int id) throws SQLException {
+        Connection c = databaseConnector.getConnection();
+
+        String updateStatement = "DELETE employee, delivery_employee FROM delivery_employee " +
+                "LEFT JOIN employee ON " +
+                "employee.employee_id = delivery_employee.employee_id " +
+                "WHERE employee.employee_id = ?;";
+
+        PreparedStatement st = c.prepareStatement(updateStatement);
+
+        st.setInt(1, id);
+
+        st.executeUpdate();
+    }
+
 
     }
 
