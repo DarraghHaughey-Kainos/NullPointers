@@ -24,8 +24,8 @@ public class DeliveryEmployeeService {
     // create instance of update delivery employee validator class
     UpdateDeliveryEmployeeValidator updateDeliveryEmployeeValidator = new UpdateDeliveryEmployeeValidator();
 
-
     public DeliveryEmployeeService(DeliveryEmployeeDAO dao) {
+
         this.dao = dao;
     }
 

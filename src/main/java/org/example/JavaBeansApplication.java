@@ -5,6 +5,7 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import org.example.resources.AuthController;
 import org.example.resources.DeliveryEmployeeController;
 
 public class JavaBeansApplication extends Application<JavaBeansConfiguration> {
@@ -34,6 +35,7 @@ public class JavaBeansApplication extends Application<JavaBeansConfiguration> {
                     final Environment environment) {
         // TODO: implement application
         environment.jersey().register(new DeliveryEmployeeController());
+        environment.jersey().register(new AuthController());
     }
 
 }

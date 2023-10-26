@@ -16,7 +16,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Api("Java beans Kainoos api")
+@Api("NullPointers api")
 @Path("/api")
 public class DeliveryEmployeeController {
 
