@@ -15,7 +15,6 @@ public class DeliveryEmployeeService {
     private EmployeeValidator employeeValidator = new EmployeeValidator();
     EmployeeRequestValidator employeeRequestValidator = new EmployeeRequestValidator();
 
-
     public DeliveryEmployeeService(DeliveryEmployeeDAO dao){
         this.dao = dao;
     }
